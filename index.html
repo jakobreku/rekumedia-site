@@ -91,8 +91,7 @@
   .brand-mark {
     width: 22px; height: 22px; border-radius: 6px;
     background: linear-gradient(150deg, var(--accent), var(--accent-2));
-    display: inline-flex; align-items: center; justify-content: center;
-    color: #052a30; font-weight: 800; font-size: 13px;
+    display: inline-block; flex: none;
   }
   .brand .sep { color: var(--faint); font-weight: 400; }
   .brand .tool { color: var(--muted); font-weight: 500; }
@@ -332,7 +331,7 @@
 <header id="hdr">
   <div class="container nav">
     <a class="brand" href="/">
-      <span class="brand-mark">r</span>
+      <span class="brand-mark" aria-hidden="true"></span>
       Reku Media <span class="sep">/</span> <span class="tool">Clipping Publisher</span>
     </a>
     <nav class="nav-links">
@@ -574,7 +573,7 @@
     <div class="foot-grid">
       <div class="foot-brand">
         <a class="brand" href="/">
-          <span class="brand-mark">r</span>
+          <span class="brand-mark" aria-hidden="true"></span>
           Reku Media <span class="sep">/</span> <span class="tool">Clipping Publisher</span>
         </a>
         <p>
