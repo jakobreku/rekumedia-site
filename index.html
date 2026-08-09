@@ -398,15 +398,15 @@
 
     <div class="stats reveal">
       <div class="stat">
-        <div class="stat-num" data-count="3">0</div>
+        <div class="stat-num" data-count="3">3</div>
         <div class="stat-label">Connected platforms</div>
       </div>
       <div class="stat">
-        <div class="stat-num" data-count="7">0</div>
+        <div class="stat-num" data-count="7">7</div>
         <div class="stat-label">Pipeline stages</div>
       </div>
       <div class="stat">
-        <div class="stat-num" data-count="1">0</div>
+        <div class="stat-num" data-count="1">1</div>
         <div class="stat-label">Manual approval gate</div>
       </div>
       <div class="stat">
@@ -665,32 +665,33 @@
     items.forEach(function (el) { el.classList.add('in'); });
   }
 
-  // count up the stat figures once the strip is on screen
-  var counted = false;
-  var runCount = function () {
-    if (counted) { return; }
-    counted = true;
-    document.querySelectorAll('.stat-num[data-count]').forEach(function (el) {
-      var target = parseInt(el.getAttribute('data-count'), 10) || 0;
-      if (reduced || target === 0) { el.textContent = String(target); return; }
-      var dur = 900, t0 = performance.now();
-      var tick = function (now) {
-        var k = Math.min(1, (now - t0) / dur);
-        var eased = 1 - Math.pow(1 - k, 3);
-        el.textContent = String(Math.round(target * eased));
-        if (k < 1) { requestAnimationFrame(tick); }
-      };
-      requestAnimationFrame(tick);
-    });
-  };
+  // Count the stat figures up when the strip arrives. The markup already holds
+  // the real numbers, so this only ever runs when it can finish the job: no JS,
+  // reduced motion, or a strip that is already past — all keep the plain values.
   var strip = document.querySelector('.stats');
-  if (strip && 'IntersectionObserver' in window) {
+  var figures = [].slice.call(document.querySelectorAll('.stat-num[data-count]'));
+  if (strip && figures.length && !reduced && 'IntersectionObserver' in window &&
+      strip.getBoundingClientRect().top > window.innerHeight) {
+    figures.forEach(function (el) { el.textContent = '0'; });
+    var runCount = function () {
+      figures.forEach(function (el) {
+        var target = parseInt(el.getAttribute('data-count'), 10) || 0;
+        if (target === 0) { el.textContent = '0'; return; }
+        var dur = 900, t0 = performance.now();
+        var tick = function (now) {
+          var k = Math.min(1, (now - t0) / dur);
+          el.textContent = String(Math.round(target * (1 - Math.pow(1 - k, 3))));
+          if (k < 1) { requestAnimationFrame(tick); }
+        };
+        requestAnimationFrame(tick);
+      });
+    };
     var so = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) { if (e.isIntersecting) { runCount(); so.disconnect(); } });
-    }, { threshold: 0.35 });
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { so.disconnect(); runCount(); }
+      });
+    }, { threshold: 0.3 });
     so.observe(strip);
-  } else {
-    runCount();
   }
 
   // pointer-tracked card tint
