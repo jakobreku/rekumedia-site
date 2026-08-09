@@ -57,11 +57,24 @@
     width: 920px; height: 720px;
     background: radial-gradient(50% 50% at 50% 50%, rgba(34,211,238,0.13), transparent 70%);
     filter: blur(20px);
+    animation: drift 22s ease-in-out infinite;
+  }
+  @keyframes drift {
+    0%, 100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
+    50%      { transform: translateX(-46%) translateY(26px) scale(1.06); opacity: 0.82; }
   }
   .bg-grain {
     position: absolute; inset: 0; opacity: 0.04; mix-blend-mode: overlay;
     background-size: 180px 180px;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* ---- Scroll progress ---- */
+  .progress {
+    position: fixed; top: 0; left: 0; height: 2px; width: 100%;
+    transform: scaleX(0); transform-origin: left; z-index: 60;
+    background: linear-gradient(90deg, var(--accent-2), var(--accent));
+    will-change: transform;
   }
 
   .shell { position: relative; z-index: 1; }
@@ -88,16 +101,20 @@
   }
   .nav { display: flex; align-items: center; justify-content: space-between; height: 68px; }
   .brand { display: inline-flex; align-items: center; gap: 9px; font-weight: 700; font-size: 16px; letter-spacing: -0.02em; }
-  .brand-mark {
-    width: 22px; height: 22px; border-radius: 6px;
-    background: linear-gradient(150deg, var(--accent), var(--accent-2));
-    display: inline-block; flex: none;
-  }
   .brand .sep { color: var(--faint); font-weight: 400; }
   .brand .tool { color: var(--muted); font-weight: 500; }
   .nav-links { display: flex; align-items: center; gap: 30px; }
-  .nav-links a { font-size: 14px; color: var(--muted); transition: color 0.18s; }
+  .nav-links a {
+    position: relative; font-size: 14px; color: var(--muted); transition: color 0.18s;
+    padding-bottom: 3px;
+  }
+  .nav-links a::after {
+    content: ""; position: absolute; left: 0; bottom: 0; height: 1px; width: 100%;
+    background: var(--accent); transform: scaleX(0); transform-origin: right;
+    transition: transform 0.28s cubic-bezier(.2,.7,.2,1);
+  }
   .nav-links a:hover { color: var(--text); }
+  .nav-links a:hover::after { transform: scaleX(1); transform-origin: left; }
 
   .btn {
     display: inline-flex; align-items: center; gap: 8px;
@@ -159,6 +176,12 @@
   }
   .hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 
+  /* ---- Hero entrance stagger ---- */
+  .fade-up { opacity: 0; transform: translateY(14px); animation: fadeUp 0.8s cubic-bezier(.2,.7,.2,1) forwards; }
+  .fu1 { animation-delay: 0.05s; } .fu2 { animation-delay: 0.42s; }
+  .fu3 { animation-delay: 0.52s; } .fu4 { animation-delay: 0.62s; }
+  @keyframes fadeUp { to { opacity: 1; transform: none; } }
+
   /* ---- Stats strip ---- */
   .stats {
     display: grid; grid-template-columns: repeat(4, 1fr);
@@ -167,7 +190,7 @@
   }
   .stat { padding: 26px 22px; border-right: 1px solid var(--line); }
   .stat:last-child { border-right: none; }
-  .stat-num { font-size: 30px; font-weight: 700; letter-spacing: -0.03em; }
+  .stat-num { font-size: 30px; font-weight: 700; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
   .stat-label { font-family: var(--mono); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); margin-top: 7px; }
 
   /* ---- Section scaffold ---- */
@@ -291,7 +314,12 @@
   .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.7s cubic-bezier(.2,.7,.2,1), transform 0.7s cubic-bezier(.2,.7,.2,1); }
   .reveal.in { opacity: 1; transform: none; }
   .d1 { transition-delay: 0.06s; } .d2 { transition-delay: 0.12s; } .d3 { transition-delay: 0.18s; } .d4 { transition-delay: 0.24s; }
-  @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .fade-up { opacity: 1; transform: none; animation: none; }
+    .bg-glow { animation: none; }
+    .progress { display: none; }
+  }
 
   /* ---- Responsive ---- */
   @media (max-width: 980px) {
@@ -320,6 +348,8 @@
 </head>
 <body>
 
+<div class="progress" id="prog" aria-hidden="true"></div>
+
 <div class="bg-wrap">
   <div class="bg-grid"></div>
   <div class="bg-glow"></div>
@@ -331,7 +361,6 @@
 <header id="hdr">
   <div class="container nav">
     <a class="brand" href="/">
-      <span class="brand-mark" aria-hidden="true"></span>
       Reku Media <span class="sep">/</span> <span class="tool">Clipping Publisher</span>
     </a>
     <nav class="nav-links">
@@ -347,7 +376,7 @@
 
   <section class="hero">
     <div class="hero-inner">
-      <div class="pill">
+      <div class="pill fade-up fu1">
         <span class="dot"></span>
         <b>In-house publishing tool</b> &middot; operated by Reku Media
       </div>
@@ -355,13 +384,13 @@
         <span class="line"><span class="line-in">Long-form video in.</span></span>
         <span class="line"><span class="line-in accent">Short vertical clips out.</span></span>
       </h1>
-      <p class="lead">
+      <p class="lead fade-up fu2">
         Clipping Publisher is the internal tool Reku Media uses to run its own social media
         channels. It takes long-form source video, selects the moments worth keeping, renders
         them as vertical clips, and — after a person approves each one — publishes them to
         Reku Media's own connected accounts through the platforms' official APIs.
       </p>
-      <div class="hero-actions">
+      <div class="hero-actions fade-up fu3">
         <a class="btn btn-primary btn-lg" href="#how">How it works <span class="arr">&rarr;</span></a>
         <a class="btn btn-ghost btn-lg" href="#integrations">Platform integrations</a>
       </div>
@@ -369,19 +398,19 @@
 
     <div class="stats reveal">
       <div class="stat">
-        <div class="stat-num">3</div>
+        <div class="stat-num" data-count="3">0</div>
         <div class="stat-label">Connected platforms</div>
       </div>
       <div class="stat">
-        <div class="stat-num">7</div>
+        <div class="stat-num" data-count="7">0</div>
         <div class="stat-label">Pipeline stages</div>
       </div>
       <div class="stat">
-        <div class="stat-num">1</div>
+        <div class="stat-num" data-count="1">0</div>
         <div class="stat-label">Manual approval gate</div>
       </div>
       <div class="stat">
-        <div class="stat-num">0</div>
+        <div class="stat-num" data-count="0">0</div>
         <div class="stat-label">Third-party accounts</div>
       </div>
     </div>
@@ -573,8 +602,7 @@
     <div class="foot-grid">
       <div class="foot-brand">
         <a class="brand" href="/">
-          <span class="brand-mark" aria-hidden="true"></span>
-          Reku Media <span class="sep">/</span> <span class="tool">Clipping Publisher</span>
+              Reku Media <span class="sep">/</span> <span class="tool">Clipping Publisher</span>
         </a>
         <p>
           In-house publishing tool for Reku Media's own social channels. Long-form video in,
@@ -608,11 +636,18 @@
 </div>
 
 <script>
-  // sticky header state
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // sticky header state + scroll progress
   var hdr = document.getElementById('hdr');
+  var prog = document.getElementById('prog');
   var onScroll = function () {
     if (window.scrollY > 8) { hdr.classList.add('scrolled'); }
     else { hdr.classList.remove('scrolled'); }
+    if (prog) {
+      var max = document.documentElement.scrollHeight - window.innerHeight;
+      prog.style.transform = 'scaleX(' + (max > 0 ? window.scrollY / max : 0) + ')';
+    }
   };
   onScroll();
   window.addEventListener('scroll', onScroll, { passive: true });
@@ -628,6 +663,34 @@
     items.forEach(function (el) { io.observe(el); });
   } else {
     items.forEach(function (el) { el.classList.add('in'); });
+  }
+
+  // count up the stat figures once the strip is on screen
+  var counted = false;
+  var runCount = function () {
+    if (counted) { return; }
+    counted = true;
+    document.querySelectorAll('.stat-num[data-count]').forEach(function (el) {
+      var target = parseInt(el.getAttribute('data-count'), 10) || 0;
+      if (reduced || target === 0) { el.textContent = String(target); return; }
+      var dur = 900, t0 = performance.now();
+      var tick = function (now) {
+        var k = Math.min(1, (now - t0) / dur);
+        var eased = 1 - Math.pow(1 - k, 3);
+        el.textContent = String(Math.round(target * eased));
+        if (k < 1) { requestAnimationFrame(tick); }
+      };
+      requestAnimationFrame(tick);
+    });
+  };
+  var strip = document.querySelector('.stats');
+  if (strip && 'IntersectionObserver' in window) {
+    var so = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { runCount(); so.disconnect(); } });
+    }, { threshold: 0.35 });
+    so.observe(strip);
+  } else {
+    runCount();
   }
 
   // pointer-tracked card tint

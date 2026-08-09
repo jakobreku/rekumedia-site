@@ -42,6 +42,34 @@
     width: 920px; height: 720px;
     background: radial-gradient(50% 50% at 50% 50%, rgba(34,211,238,0.10), transparent 70%);
     filter: blur(20px);
+    animation: drift 22s ease-in-out infinite;
+  }
+  @keyframes drift {
+    0%, 100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
+    50%      { transform: translateX(-46%) translateY(26px) scale(1.06); opacity: 0.82; }
+  }
+
+  /* ---- Scroll progress ---- */
+  .progress {
+    position: fixed; top: 0; left: 0; height: 2px; width: 100%;
+    transform: scaleX(0); transform-origin: left; z-index: 60;
+    background: linear-gradient(90deg, var(--accent-2), var(--accent));
+    will-change: transform;
+  }
+
+  /* ---- Entrance ---- */
+  .fade-up { opacity: 0; transform: translateY(14px); animation: fadeUp 0.8s cubic-bezier(.2,.7,.2,1) forwards; }
+  .fu1 { animation-delay: 0.04s; } .fu2 { animation-delay: 0.12s; } .fu3 { animation-delay: 0.20s; }
+  @keyframes fadeUp { to { opacity: 1; transform: none; } }
+
+  .reveal { opacity: 0; transform: translateY(14px); transition: opacity 0.6s cubic-bezier(.2,.7,.2,1), transform 0.6s cubic-bezier(.2,.7,.2,1); }
+  .reveal.in { opacity: 1; transform: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fade-up { opacity: 1; transform: none; animation: none; }
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .bg-glow { animation: none; }
+    .progress { display: none; }
   }
 
   .shell { position: relative; z-index: 1; }
@@ -50,11 +78,6 @@
   header { border-bottom: 1px solid var(--line); }
   .nav { display: flex; align-items: center; justify-content: space-between; height: 68px; }
   .brand { display: inline-flex; align-items: center; gap: 9px; font-weight: 700; font-size: 16px; letter-spacing: -0.02em; text-decoration: none; }
-  .brand-mark {
-    width: 22px; height: 22px; border-radius: 6px;
-    background: linear-gradient(150deg, var(--accent), var(--accent-2));
-    display: inline-block; flex: none;
-  }
   .brand .sep { color: var(--faint); font-weight: 400; }
   .brand .tool { color: var(--muted); font-weight: 500; }
   .back { font-size: 14px; color: var(--muted); text-decoration: none; transition: color 0.18s; }
@@ -88,6 +111,8 @@
 </head>
 <body>
 
+<div class="progress" id="prog" aria-hidden="true"></div>
+
 <div class="bg-wrap">
   <div class="bg-grid"></div>
   <div class="bg-glow"></div>
@@ -98,7 +123,6 @@
 <header>
   <div class="container nav">
     <a class="brand" href="/">
-      <span class="brand-mark" aria-hidden="true"></span>
       Reku Media <span class="sep">/</span> <span class="tool">Clipping Publisher</span>
     </a>
     <a class="back" href="/">&larr; Back</a>
@@ -106,17 +130,17 @@
 </header>
 
 <main class="container doc">
-  <span class="eyebrow">Legal</span>
-  <h1>Privacy Policy</h1>
-  <p class="updated">Last updated: 2026-07-24</p>
+  <span class="eyebrow fade-up fu1">Legal</span>
+  <h1 class="fade-up fu2">Privacy Policy</h1>
+  <p class="updated fade-up fu2">Last updated: 2026-07-24</p>
 
-  <p class="intro">
+  <p class="intro fade-up fu3">
     This Privacy Policy explains how Reku Media ("we", "us", "our") handles data in connection with
     the software and applications ("Services") that publish video content to connected social media
     accounts on Instagram, TikTok, and YouTube.
   </p>
 
-  <h2><span class="n">01</span>Data We Access</h2>
+  <h2 class="reveal"><span class="n">01</span>Data We Access</h2>
   <p>When an account is connected via a platform's official OAuth flow, we access only the minimum data required to publish content on behalf of that account, such as:</p>
   <ul>
     <li>Basic account identifiers (e.g. channel ID, username) needed to address the correct destination account.</li>
@@ -124,22 +148,22 @@
   </ul>
   <p>We do not access private messages, contact lists, or data unrelated to publishing the connected account's own content.</p>
 
-  <h2><span class="n">02</span>How We Use Data</h2>
+  <h2 class="reveal"><span class="n">02</span>How We Use Data</h2>
   <p>Access tokens and account identifiers are used exclusively to publish previously reviewed video content to the corresponding account and to confirm that a publish request succeeded. We do not sell this data or share it with third parties except the platform APIs required to perform the publishing action itself.</p>
 
-  <h2><span class="n">03</span>Data Storage</h2>
+  <h2 class="reveal"><span class="n">03</span>Data Storage</h2>
   <p>Authorization tokens are stored in an encrypted, access-controlled credential store (operating-system keychain) and are not stored in plaintext or in version control. Tokens are retained only as long as the connection remains active.</p>
 
-  <h2><span class="n">04</span>Data Retention &amp; Deletion</h2>
+  <h2 class="reveal"><span class="n">04</span>Data Retention &amp; Deletion</h2>
   <p>If a connected account is disconnected, its associated authorization tokens are deleted. You can request deletion of any data we hold about a connected account at any time by contacting us using the details below.</p>
 
-  <h2><span class="n">05</span>Third-Party Platforms</h2>
+  <h2 class="reveal"><span class="n">05</span>Third-Party Platforms</h2>
   <p>Use of the Services in connection with Instagram, TikTok, or YouTube is additionally subject to the respective platform's own privacy policy and terms.</p>
 
-  <h2><span class="n">06</span>Changes to This Policy</h2>
+  <h2 class="reveal"><span class="n">06</span>Changes to This Policy</h2>
   <p>We may update this Privacy Policy from time to time. Material changes will be reflected by updating the "Last updated" date above.</p>
 
-  <h2><span class="n">07</span>Contact</h2>
+  <h2 class="reveal"><span class="n">07</span>Contact</h2>
   <p>Questions about this Privacy Policy or data requests can be sent to <a class="link" href="mailto:rekumedia.online@gmail.com">rekumedia.online@gmail.com</a>.</p>
 </main>
 
@@ -151,5 +175,29 @@
 </footer>
 
 </div>
+
+<script>
+  var prog = document.getElementById('prog');
+  var onScroll = function () {
+    if (!prog) { return; }
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    prog.style.transform = 'scaleX(' + (max > 0 ? window.scrollY / max : 0) + ')';
+  };
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  var items = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.05 });
+    items.forEach(function (el) { io.observe(el); });
+  } else {
+    items.forEach(function (el) { el.classList.add('in'); });
+  }
+</script>
+
 </body>
 </html>
