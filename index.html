@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script>document.documentElement.className += ' js';</script>
 <style>
   :root {
     --bg: #08090a;
@@ -177,7 +178,7 @@
   .hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 
   /* ---- Hero entrance stagger ---- */
-  .fade-up { opacity: 0; transform: translateY(14px); animation: fadeUp 0.8s cubic-bezier(.2,.7,.2,1) forwards; }
+  .js .fade-up { opacity: 0; transform: translateY(14px); animation: fadeUp 0.8s cubic-bezier(.2,.7,.2,1) forwards; }
   .fu1 { animation-delay: 0.05s; } .fu2 { animation-delay: 0.42s; }
   .fu3 { animation-delay: 0.52s; } .fu4 { animation-delay: 0.62s; }
   @keyframes fadeUp { to { opacity: 1; transform: none; } }
@@ -311,12 +312,13 @@
   }
 
   /* ---- Reveal ---- */
-  .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.7s cubic-bezier(.2,.7,.2,1), transform 0.7s cubic-bezier(.2,.7,.2,1); }
-  .reveal.in { opacity: 1; transform: none; }
+  /* Hidden only once JS has confirmed it can bring them back. */
+  .js .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.7s cubic-bezier(.2,.7,.2,1), transform 0.7s cubic-bezier(.2,.7,.2,1); }
+  .js .reveal.in { opacity: 1; transform: none; }
   .d1 { transition-delay: 0.06s; } .d2 { transition-delay: 0.12s; } .d3 { transition-delay: 0.18s; } .d4 { transition-delay: 0.24s; }
   @media (prefers-reduced-motion: reduce) {
-    .reveal { opacity: 1; transform: none; transition: none; }
-    .fade-up { opacity: 1; transform: none; animation: none; }
+    .js .reveal { opacity: 1; transform: none; transition: none; }
+    .js .fade-up { opacity: 1; transform: none; animation: none; }
     .bg-glow { animation: none; }
     .progress { display: none; }
   }
@@ -702,6 +704,14 @@
       card.style.setProperty('--my', (ev.clientY - r.top) + 'px');
     });
   });
+
+  // Watchdog: if no observer callback has landed, the content must not stay
+  // hidden. Anything still unrevealed after 1.5s is shown outright.
+  setTimeout(function () {
+    if (!document.querySelector('.reveal.in')) {
+      document.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('in'); });
+    }
+  }, 1500);
 </script>
 
 </body>
