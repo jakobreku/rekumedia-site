@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clipping Publisher — Reku Media</title>
+<meta name="description" content="Clipping Publisher is the in-house publishing tool operated by Reku Media. It turns long-form source video into short vertical clips and publishes them to Reku Media's own connected social accounts through official platform APIs.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#f4f1ea;
+    --paper-deep:#ebe6db;
+    --ink:#16150f;
+    --ink-soft:#4a4638;
+    --ink-faint:#8a8474;
+    --rule:#d5cfc0;
+    --signal:#c2401b;
+    --signal-deep:#8f2d10;
+    --max:1180px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"IBM Plex Sans",-apple-system,sans-serif;
+    font-weight:300;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  /* paper grain */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:100;opacity:.35;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3'/></filter><rect width='140' height='140' filter='url(%23n)' opacity='.5'/></svg>");
+    mix-blend-mode:multiply;
+  }
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 32px;}
+  a{color:var(--signal-deep);text-underline-offset:3px;text-decoration-thickness:1px;}
+  a:hover{color:var(--signal);}
+
+  /* ---------- masthead ---------- */
+  header{border-bottom:1.5px solid var(--ink);}
+  .masthead{display:flex;align-items:baseline;justify-content:space-between;gap:24px;padding:20px 0 16px;flex-wrap:wrap;}
+  .wordmark{font-family:"IBM Plex Mono",monospace;font-size:.74rem;letter-spacing:.24em;text-transform:uppercase;font-weight:500;}
+  .wordmark span{color:var(--signal);}
+  nav{display:flex;gap:26px;font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;}
+  nav a{color:var(--ink-soft);text-decoration:none;padding-bottom:2px;border-bottom:1px solid transparent;}
+  nav a:hover{color:var(--ink);border-bottom-color:var(--signal);}
+
+  /* ---------- hero ---------- */
+  .hero{padding:78px 0 64px;border-bottom:1px solid var(--rule);}
+  .kicker{
+    font-family:"IBM Plex Mono",monospace;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--signal);display:flex;align-items:center;gap:12px;margin-bottom:26px;
+    animation:rise .7s cubic-bezier(.2,.7,.3,1) both;
+  }
+  .kicker::after{content:"";height:1px;flex:1;background:var(--rule);}
+  h1{
+    font-family:"Fraunces",Georgia,serif;font-weight:300;font-size:clamp(2.7rem,6.4vw,5.1rem);
+    line-height:1.02;letter-spacing:-.022em;margin:0 0 28px;max-width:15ch;
+    animation:rise .7s .06s cubic-bezier(.2,.7,.3,1) both;
+  }
+  h1 em{font-style:italic;font-weight:500;color:var(--signal-deep);}
+  .lede{
+    font-size:1.16rem;max-width:60ch;color:var(--ink-soft);margin:0 0 38px;
+    animation:rise .7s .13s cubic-bezier(.2,.7,.3,1) both;
+  }
+  .hero-meta{
+    display:flex;gap:34px;flex-wrap:wrap;font-family:"IBM Plex Mono",monospace;
+    font-size:.72rem;letter-spacing:.08em;color:var(--ink-faint);
+    animation:rise .7s .2s cubic-bezier(.2,.7,.3,1) both;
+  }
+  .hero-meta b{display:block;color:var(--ink);font-weight:500;letter-spacing:.02em;font-size:.82rem;margin-bottom:2px;}
+  @keyframes rise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+
+  /* ---------- section frame ---------- */
+  section{padding:64px 0;border-bottom:1px solid var(--rule);}
+  .sec-head{display:flex;gap:16px;align-items:baseline;margin-bottom:38px;}
+  .sec-num{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--signal);letter-spacing:.1em;padding-top:6px;}
+  h2{font-family:"Fraunces",Georgia,serif;font-weight:400;font-size:clamp(1.6rem,3vw,2.2rem);letter-spacing:-.015em;margin:0;line-height:1.15;}
+  .sec-sub{color:var(--ink-soft);max-width:62ch;margin:14px 0 0;}
+
+  /* ---------- pipeline ---------- */
+  .flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);}
+  .step{background:var(--paper);padding:22px 18px 24px;position:relative;transition:background .25s;}
+  .step:hover{background:var(--paper-deep);}
+  .step-n{font-family:"IBM Plex Mono",monospace;font-size:.66rem;color:var(--ink-faint);letter-spacing:.1em;}
+  .step h3{font-family:"IBM Plex Sans",sans-serif;font-size:.94rem;font-weight:600;margin:9px 0 7px;letter-spacing:-.005em;}
+  .step p{margin:0;font-size:.83rem;color:var(--ink-soft);line-height:1.55;}
+  .step.gate{background:#efe7d8;}
+  .step.gate .step-n{color:var(--signal);}
+
+  /* ---------- integrations ---------- */
+  .integrations{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:28px;}
+  .card{border-top:2px solid var(--ink);padding-top:18px;}
+  .card h3{font-family:"Fraunces",Georgia,serif;font-weight:500;font-size:1.24rem;margin:0 0 4px;}
+  .card .api{font-family:"IBM Plex Mono",monospace;font-size:.7rem;color:var(--ink-faint);letter-spacing:.04em;margin-bottom:13px;}
+  .card p{margin:0 0 14px;font-size:.9rem;color:var(--ink-soft);}
+  .scopes{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:6px;}
+  .scopes li{
+    font-family:"IBM Plex Mono",monospace;font-size:.66rem;letter-spacing:.02em;
+    border:1px solid var(--rule);padding:3px 8px;color:var(--ink-soft);background:var(--paper-deep);
+  }
+  .status{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:.63rem;letter-spacing:.12em;
+    text-transform:uppercase;padding:3px 9px;margin-bottom:13px;border:1px solid;}
+  .status.live{color:var(--signal-deep);border-color:var(--signal);}
+  .status.pending{color:var(--ink-faint);border-color:var(--rule);}
+
+  /* ---------- principles ---------- */
+  .principles{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:34px;}
+  .principle h3{font-size:.96rem;font-weight:600;margin:0 0 8px;display:flex;gap:9px;align-items:baseline;}
+  .principle h3::before{content:"";width:7px;height:7px;background:var(--signal);flex:none;transform:translateY(-1px);}
+  .principle p{margin:0;font-size:.89rem;color:var(--ink-soft);}
+
+  /* ---------- footer ---------- */
+  footer{padding:52px 0 64px;}
+  .foot-grid{display:flex;justify-content:space-between;gap:36px;flex-wrap:wrap;align-items:flex-start;}
+  .foot-links{display:flex;gap:26px;font-family:"IBM Plex Mono",monospace;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;}
+  .legal-note{font-size:.78rem;color:var(--ink-faint);max-width:44ch;margin:22px 0 0;}
+  .op{font-family:"IBM Plex Mono",monospace;font-size:.72rem;color:var(--ink-faint);line-height:1.9;}
+  .op b{color:var(--ink);font-weight:500;}
+
+  @media(max-width:640px){
+    .wrap{padding:0 22px;}
+    .hero{padding:54px 0 46px;}
+    section{padding:48px 0;}
+    .sec-head{flex-direction:column;gap:6px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap masthead">
+    <div class="wordmark">Reku<span>.</span> Media &nbsp;/&nbsp; Clipping Publisher</div>
+    <nav>
+      <a href="#how">How it works</a>
+      <a href="#integrations">Integrations</a>
+      <a href="#handling">Data</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="kicker">In-house publishing tool</div>
+    <h1>Long-form video, cut into <em>short vertical clips</em>, published on schedule.</h1>
+    <p class="lede">
+      Clipping Publisher is the internal tool Reku Media uses to run its own social media
+      channels. It takes long-form source video, selects the moments worth keeping, renders
+      them as vertical clips, and — after a person approves each one — publishes them to
+      Reku Media's own connected accounts through the platforms' official APIs.
+    </p>
+    <div class="hero-meta">
+      <div><b>Operator</b>Reku Media, Germany</div>
+      <div><b>Type</b>Desktop application, single operator</div>
+      <div><b>Accounts</b>Owned and operated in-house</div>
+    </div>
+  </div>
+
+  <section id="how">
+    <div class="sec-head">
+      <div class="sec-num">01</div>
+      <div>
+        <h2>How it works</h2>
+        <p class="sec-sub">
+          Every clip travels the same path. Nothing reaches a platform without a person
+          approving it first.
+        </p>
+      </div>
+    </div>
+    <div class="flow">
+      <div class="step">
+        <div class="step-n">01</div>
+        <h3>Ingest</h3>
+        <p>A long-form source video is added to the local library.</p>
+      </div>
+      <div class="step">
+        <div class="step-n">02</div>
+        <h3>Transcribe</h3>
+        <p>Speech is transcribed locally to give the selection step something to read.</p>
+      </div>
+      <div class="step">
+        <div class="step-n">03</div>
+        <h3>Select</h3>
+        <p>Self-contained moments are proposed, each with a start, an end and a reason.</p>
+      </div>
+      <div class="step">
+        <div class="step-n">04</div>
+        <h3>Render</h3>
+        <p>The clip is cut to vertical format with captions and levelled audio.</p>
+      </div>
+      <div class="step">
+        <div class="step-n">05</div>
+        <h3>Check</h3>
+        <p>Automatic checks catch clipped audio, cut-off sentences and framing faults.</p>
+      </div>
+      <div class="step gate">
+        <div class="step-n">06 — Manual</div>
+        <h3>Approve</h3>
+        <p>A person reviews every clip and either approves it or sends it back with a reason.</p>
+      </div>
+      <div class="step">
+        <div class="step-n">07</div>
+        <h3>Publish</h3>
+        <p>Approved clips are uploaded to the chosen account at the scheduled time.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="integrations">
+    <div class="sec-head">
+      <div class="sec-num">02</div>
+      <div>
+        <h2>Platform integrations</h2>
+        <p class="sec-sub">
+          Each platform is connected through its official API. Authorization is granted by
+          the account owner via the platform's own consent screen; access can be revoked
+          there at any time.
+        </p>
+      </div>
+    </div>
+    <div class="integrations">
+
+      <div class="card">
+        <h3>TikTok</h3>
+        <div class="api">Login Kit · Content Posting API</div>
+        <div class="status pending">Integration pending review</div>
+        <p>
+          The operator signs in to their own TikTok account through Login Kit. Approved
+          clips are then sent to that account with Direct Post, one clip per request, at the
+          time chosen during review. No third-party accounts are involved.
+        </p>
+        <ul class="scopes">
+          <li>user.info.basic</li>
+          <li>video.upload</li>
+          <li>video.publish</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Instagram</h3>
+        <div class="api">Instagram API with Instagram Login</div>
+        <div class="status live">Live</div>
+        <p>
+          Approved clips are published as Reels to Reku Media's own professional accounts.
+          The tool creates a media container, waits for processing to finish, then publishes it.
+        </p>
+        <ul class="scopes">
+          <li>instagram_business_basic</li>
+          <li>instagram_business_content_publish</li>
+          <li>instagram_business_manage_comments</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>YouTube</h3>
+        <div class="api">YouTube Data API v3</div>
+        <div class="status live">Live</div>
+        <p>
+          Approved clips are uploaded as Shorts to Reku Media's own channels using a
+          resumable upload, with title and description set from the reviewed clip.
+        </p>
+        <ul class="scopes">
+          <li>youtube.upload</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="handling">
+    <div class="sec-head">
+      <div class="sec-num">03</div>
+      <div>
+        <h2>How the tool behaves</h2>
+        <p class="sec-sub">Constraints the tool is built around, not features bolted on afterwards.</p>
+      </div>
+    </div>
+    <div class="principles">
+      <div class="principle">
+        <h3>Own accounts only</h3>
+        <p>
+          The tool publishes exclusively to social accounts operated by Reku Media. It is not
+          offered to third parties and manages no one else's accounts or data.
+        </p>
+      </div>
+      <div class="principle">
+        <h3>A person approves every clip</h3>
+        <p>
+          Clips are never published automatically off the back of the editing step. Each one is
+          reviewed and approved by hand before a publish job can even be created.
+        </p>
+      </div>
+      <div class="principle">
+        <h3>Runs locally</h3>
+        <p>
+          Video, transcripts and the review database stay on the operator's own machine.
+          Nothing is uploaded except the finished clip that goes to the chosen platform.
+        </p>
+      </div>
+      <div class="principle">
+        <h3>Credentials stay in the system keychain</h3>
+        <p>
+          Access tokens are held in the operating system's keychain, never in the project
+          database or in source control, and are used only to publish to the account that
+          issued them.
+        </p>
+      </div>
+      <div class="principle">
+        <h3>One upload per approved clip</h3>
+        <p>
+          Publish jobs carry an idempotency key, so an interrupted upload resumes instead of
+          producing a second post.
+        </p>
+      </div>
+      <div class="principle">
+        <h3>Licensed source material</h3>
+        <p>
+          Source video comes from material Reku Media is licensed to clip, under the terms set
+          by whoever supplied it.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <footer id="contact">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-links">
+          <a href="https://rekumedia.com/terms">Terms of Service</a>
+          <a href="https://rekumedia.com/privacy">Privacy Policy</a>
+          <a href="mailto:rekumedia.online@gmail.com">Email</a>
+        </div>
+        <p class="legal-note">
+          Clipping Publisher is an internal tool. There is no public sign-up: it is operated by
+          Reku Media for Reku Media's own channels.
+        </p>
+      </div>
+      <div class="op">
+        <b>Reku Media</b><br>
+        reku. inh. Jakob Henkel<br>
+        Germany<br>
+        rekumedia.online@gmail.com
+      </div>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>
