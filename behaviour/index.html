@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How the tool behaves — Clipping Publisher — Reku Media</title>
+<meta name="description" content="The constraints Clipping Publisher is built around: own accounts only, a person approves every clip, local processing, keychain credentials, one upload per clip, licensed source material.">
+<link rel="icon" href="/assets/favicon-32.png" sizes="32x32">
+<link rel="icon" href="/assets/favicon-16.png" sizes="16x16">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+<script>document.documentElement.className += ' js';</script>
+</head>
+<body>
+
+<div class="progress" id="prog" aria-hidden="true"></div>
+
+<div class="bg-wrap">
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+  <div class="bg-grain"></div>
+</div>
+
+<div class="shell">
+
+<header id="hdr">
+  <div class="container nav">
+    <a class="brand" href="/">
+      <img class="mark" src="/assets/reku-mark.png" alt="" width="26" height="26">
+      Reku Media <span class="sep">/</span> <span class="tool">Clipping Publisher</span>
+    </a>
+    <nav class="nav-links">
+      <a href="/how-it-works">How it works</a>
+      <a href="/integrations">Integrations</a>
+      <a class="active" href="/behaviour">Behaviour</a>
+    </nav>
+    <a class="btn btn-ghost" href="mailto:rekumedia.online@gmail.com">Contact</a>
+  </div>
+</header>
+
+<main class="container">
+
+  <div class="page-head">
+    <span class="eyebrow">Design constraints</span>
+    <h1>How the tool behaves</h1>
+    <p>
+      These are constraints the tool was built around, not features added afterwards. Each one
+      rules something out, which is the point: a publishing tool is only trustworthy if the things
+      it cannot do are as clear as the things it can.
+    </p>
+  </div>
+
+  <div class="prose">
+
+    <h2>Own accounts only</h2>
+    <p>
+      Clipping Publisher publishes exclusively to social accounts operated by Reku Media. It is not
+      a service, there is no sign-up, and it manages no one else's accounts or data. Every
+      connected account was authorized by its own owner signing in on the platform's consent
+      screen.
+    </p>
+
+    <h2>A person approves every clip</h2>
+    <p>
+      Clips are never published as a side effect of the editing step. A publish job cannot be
+      created for a clip that has not been approved by hand, and there is no configuration that
+      relaxes this. When a reviewer rejects a clip, the reason is stored with it, so the record of
+      why something was thrown out survives longer than the memory of it.
+    </p>
+
+    <h2>Runs locally</h2>
+    <p>
+      Source video, transcripts, rendered clips and the review database all stay on the operator's
+      own machine. The only thing that ever leaves it is the finished clip that goes to the chosen
+      platform, plus the caption text that accompanies it. There is no server component, no
+      shared storage and no analytics collection.
+    </p>
+
+    <h2>Credentials stay in the system keychain</h2>
+    <p>
+      Access tokens and refresh tokens live in the operating system's keychain. They are not
+      written to the project database, not committed to source control, and not printed to logs.
+      Each token is used only to publish to the account that issued it — a token for one channel
+      cannot be used to post to another.
+    </p>
+
+    <h2>One upload per approved clip</h2>
+    <p>
+      Publish jobs carry an idempotency key. An upload interrupted by a network failure resumes
+      rather than starting a second post, and a job that has already produced a post cannot produce
+      another. Failed jobs are retried a bounded number of times and then left in a failed state
+      for a person to look at.
+    </p>
+
+    <h2>Licensed source material</h2>
+    <p>
+      Source video comes from material Reku Media is licensed to clip, under the terms set by
+      whoever supplied it. Where a licence requires attribution or a mention, that requirement is
+      recorded with the source and applied to every clip cut from it.
+    </p>
+
+    <h2>Rate and volume</h2>
+    <p>
+      Publishing is scheduled rather than bursty: jobs are spread across the day, one clip per
+      account per slot, and the same clip is not posted to several accounts on the same platform.
+      This is a deliberate limit on the tool, not a limit imposed by the platforms.
+    </p>
+
+  </div>
+
+  <div class="pager">
+    <a href="/how-it-works">
+      <div class="k">Back</div>
+      <div class="t">The seven pipeline stages &rarr;</div>
+    </a>
+    <a href="/integrations">
+      <div class="k">Also</div>
+      <div class="t">Platform integrations &rarr;</div>
+    </a>
+  </div>
+
+</main>
+
+<footer>
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="brand" href="/">
+          <img class="mark" src="/assets/reku-mark.png" alt="" width="30" height="30">
+          Reku Media <span class="sep">/</span> <span class="tool">Clipping Publisher</span>
+        </a>
+        <p>
+          In-house publishing tool for Reku Media's own social channels. Long-form video in,
+          reviewed vertical clips out.
+        </p>
+      </div>
+      <div class="foot-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="/how-it-works">How it works</a></li>
+          <li><a href="/integrations">Integrations</a></li>
+          <li><a href="/behaviour">Behaviour</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="/terms">Terms of Service</a></li>
+          <li><a href="/privacy">Privacy Policy</a></li>
+          <li><a href="mailto:rekumedia.online@gmail.com">Email</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Reku Media · reku. inh. Jakob Henkel · Germany</span>
+      <span>rekumedia.com</span>
+    </div>
+  </div>
+</footer>
+
+</div>
+
+<script src="/assets/site.js"></script>
+
+</body>
+</html>

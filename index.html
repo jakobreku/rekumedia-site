@@ -5,348 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Clipping Publisher — Reku Media</title>
 <meta name="description" content="Clipping Publisher is the in-house publishing tool operated by Reku Media. It turns long-form source video into short vertical clips and publishes them to Reku Media's own connected social accounts through official platform APIs.">
+<link rel="icon" href="/assets/favicon-32.png" sizes="32x32">
+<link rel="icon" href="/assets/favicon-16.png" sizes="16x16">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
 <script>document.documentElement.className += ' js';</script>
-<style>
-  :root {
-    --bg: #08090a;
-    --bg-1: #0c0e10;
-    --bg-2: #111316;
-    --line: rgba(255, 255, 255, 0.08);
-    --line-2: rgba(255, 255, 255, 0.14);
-    --text: #f2f3f5;
-    --muted: #989ca3;
-    --faint: #62666d;
-    --accent: #22d3ee;
-    --accent-2: #06b6d4;
-    --tiktok: #22d3ee;
-    --instagram: #e879a6;
-    --youtube: #f26d6d;
-    --r: 14px;
-    --maxw: 1120px;
-    --mono: "JetBrains Mono", ui-monospace, "SF Mono", monospace;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
-  body {
-    font-family: "Sora", -apple-system, BlinkMacSystemFont, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    overflow-x: hidden;
-  }
-  a { color: inherit; text-decoration: none; }
-  ::selection { background: rgba(34, 211, 238, 0.25); color: #fff; }
-
-  /* ---- Ambient background layers ---- */
-  .bg-wrap { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
-  .bg-grid {
-    position: absolute; inset: 0;
-    background-image:
-      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-    background-size: 60px 60px;
-    -webkit-mask-image: radial-gradient(ellipse 75% 55% at 50% -5%, #000 35%, transparent 80%);
-    mask-image: radial-gradient(ellipse 75% 55% at 50% -5%, #000 35%, transparent 80%);
-  }
-  .bg-glow {
-    position: absolute; top: -340px; left: 50%; transform: translateX(-50%);
-    width: 920px; height: 720px;
-    background: radial-gradient(50% 50% at 50% 50%, rgba(34,211,238,0.13), transparent 70%);
-    filter: blur(20px);
-    animation: drift 22s ease-in-out infinite;
-  }
-  @keyframes drift {
-    0%, 100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
-    50%      { transform: translateX(-46%) translateY(26px) scale(1.06); opacity: 0.82; }
-  }
-  .bg-grain {
-    position: absolute; inset: 0; opacity: 0.04; mix-blend-mode: overlay;
-    background-size: 180px 180px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
-
-  /* ---- Scroll progress ---- */
-  .progress {
-    position: fixed; top: 0; left: 0; height: 2px; width: 100%;
-    transform: scaleX(0); transform-origin: left; z-index: 60;
-    background: linear-gradient(90deg, var(--accent-2), var(--accent));
-    will-change: transform;
-  }
-
-  .shell { position: relative; z-index: 1; }
-  .container { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
-
-  /* ---- Mono label ---- */
-  .eyebrow {
-    font-family: var(--mono);
-    font-size: 12px; font-weight: 500;
-    letter-spacing: 0.16em; text-transform: uppercase;
-    color: var(--accent);
-  }
-
-  /* ---- Nav ---- */
-  header {
-    position: sticky; top: 0; z-index: 50;
-    border-bottom: 1px solid transparent;
-    transition: background 0.25s ease, border-color 0.25s ease, backdrop-filter 0.25s ease;
-  }
-  header.scrolled {
-    background: rgba(8, 9, 10, 0.72);
-    backdrop-filter: blur(12px);
-    border-bottom-color: var(--line);
-  }
-  .nav { display: flex; align-items: center; justify-content: space-between; height: 68px; }
-  .brand { display: inline-flex; align-items: center; gap: 9px; font-weight: 700; font-size: 16px; letter-spacing: -0.02em; }
-  .brand .sep { color: var(--faint); font-weight: 400; }
-  .brand .tool { color: var(--muted); font-weight: 500; }
-  .nav-links { display: flex; align-items: center; gap: 30px; }
-  .nav-links a {
-    position: relative; font-size: 14px; color: var(--muted); transition: color 0.18s;
-    padding-bottom: 3px;
-  }
-  .nav-links a::after {
-    content: ""; position: absolute; left: 0; bottom: 0; height: 1px; width: 100%;
-    background: var(--accent); transform: scaleX(0); transform-origin: right;
-    transition: transform 0.28s cubic-bezier(.2,.7,.2,1);
-  }
-  .nav-links a:hover { color: var(--text); }
-  .nav-links a:hover::after { transform: scaleX(1); transform-origin: left; }
-
-  .btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    font-family: inherit; font-size: 14px; font-weight: 600;
-    padding: 10px 18px; border-radius: 10px; cursor: pointer;
-    transition: transform 0.16s ease, background 0.18s ease, border-color 0.18s ease, color 0.18s;
-    border: 1px solid transparent; white-space: nowrap;
-  }
-  .btn-primary { background: var(--accent); color: #052a30; }
-  .btn-primary:hover { background: #3de3f5; transform: translateY(-1px); }
-  .btn-primary:hover .arr { transform: translateX(3px); }
-  .btn-ghost { background: transparent; color: var(--text); border-color: var(--line-2); }
-  .btn-ghost:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.24); }
-  .btn-lg { padding: 14px 24px; font-size: 15px; border-radius: 11px; }
-  .arr { transition: transform 0.18s ease; }
-
-  /* ---- Hero ---- */
-  .hero { padding: 92px 0 60px; text-align: center; }
-  .hero-inner { max-width: 780px; margin: 0 auto; }
-  .pill {
-    display: inline-flex; align-items: center; gap: 9px;
-    padding: 6px 14px 6px 11px; border-radius: 999px;
-    border: 1px solid var(--line); background: rgba(255,255,255,0.025);
-    font-size: 13px; color: var(--muted); margin-bottom: 28px;
-  }
-  .pill .dot {
-    width: 7px; height: 7px; border-radius: 50%; background: var(--accent);
-    box-shadow: 0 0 0 3px rgba(34,211,238,0.18);
-  }
-  .pill b { color: var(--text); font-weight: 600; }
-  h1 {
-    font-size: clamp(40px, 6.4vw, 72px);
-    line-height: 1.04; letter-spacing: -0.04em;
-    font-weight: 700; margin-bottom: 22px;
-  }
-  .hero-h1 .line { display: block; overflow: hidden; padding-bottom: 0.06em; }
-  .hero-h1 .line-in {
-    display: inline-block; transform: translateY(118%);
-    animation: lineUp 0.95s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-  }
-  .hero-h1 .line:nth-child(1) .line-in { animation-delay: 0.12s; }
-  .hero-h1 .line:nth-child(2) .line-in { animation-delay: 0.28s; }
-  @keyframes lineUp { from { transform: translateY(118%); } to { transform: translateY(0); } }
-  h1 .accent {
-    background: linear-gradient(100deg, #22d3ee 0%, #8ef2ff 50%, #22d3ee 100%);
-    background-size: 220% 100%;
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent; color: #22d3ee;
-    animation: sheen 5.5s ease-in-out 1.1s infinite;
-  }
-  @keyframes sheen { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
-  @media (prefers-reduced-motion: reduce) {
-    .hero-h1 .line-in { transform: none; animation: none; }
-    h1 .accent { animation: none; }
-  }
-  .lead {
-    font-size: clamp(16px, 1.7vw, 19px); color: var(--muted);
-    max-width: 640px; margin: 0 auto 36px; line-height: 1.65;
-  }
-  .hero-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-
-  /* ---- Hero entrance stagger ---- */
-  .js .fade-up { opacity: 0; transform: translateY(14px); animation: fadeUp 0.8s cubic-bezier(.2,.7,.2,1) forwards; }
-  .fu1 { animation-delay: 0.05s; } .fu2 { animation-delay: 0.42s; }
-  .fu3 { animation-delay: 0.52s; } .fu4 { animation-delay: 0.62s; }
-  @keyframes fadeUp { to { opacity: 1; transform: none; } }
-
-  /* ---- Stats strip ---- */
-  .stats {
-    display: grid; grid-template-columns: repeat(4, 1fr);
-    border: 1px solid var(--line); border-radius: var(--r);
-    background: var(--bg-1); overflow: hidden; margin-top: 64px;
-  }
-  .stat { padding: 26px 22px; border-right: 1px solid var(--line); }
-  .stat:last-child { border-right: none; }
-  .stat-num { font-size: 30px; font-weight: 700; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
-  .stat-label { font-family: var(--mono); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); margin-top: 7px; }
-
-  /* ---- Section scaffold ---- */
-  section { position: relative; }
-  #how, #integrations, #behaviour { scroll-margin-top: 84px; }
-  .sec { padding: 96px 0; }
-  .sec-head { max-width: 640px; margin: 0 auto 56px; text-align: center; }
-  .sec-head .eyebrow { display: block; margin-bottom: 16px; }
-  .sec-head h2 { font-size: clamp(28px, 3.6vw, 40px); font-weight: 700; letter-spacing: -0.03em; line-height: 1.12; }
-  .sec-head p { color: var(--muted); margin-top: 16px; font-size: 16.5px; line-height: 1.6; }
-
-  /* ---- Steps ---- */
-  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
-  .step {
-    padding: 26px 24px; border: 1px solid var(--line);
-    border-radius: var(--r); background: var(--bg-1);
-    transition: border-color 0.25s ease, background 0.25s ease, transform 0.25s ease;
-  }
-  .step:hover { border-color: var(--line-2); background: var(--bg-2); transform: translateY(-3px); }
-  .step-n { font-family: var(--mono); font-size: 13px; color: var(--accent); margin-bottom: 16px; }
-  .step h3 { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 8px; }
-  .step p { font-size: 14px; color: var(--muted); line-height: 1.6; }
-  .step.gate {
-    border-color: rgba(34, 211, 238, 0.34);
-    background: linear-gradient(180deg, rgba(34,211,238,0.07), rgba(34,211,238,0.01)), var(--bg-1);
-  }
-  .step.gate .step-n { display: inline-flex; align-items: center; gap: 7px; }
-  .step.gate .step-n::after {
-    content: "Manual"; font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
-    padding: 2px 7px; border-radius: 6px; color: #052a30; background: var(--accent); font-weight: 600;
-  }
-
-  /* ---- Integration cards ---- */
-  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
-  .card {
-    position: relative; display: flex; flex-direction: column;
-    padding: 28px 26px; border: 1px solid var(--line); border-radius: var(--r);
-    background: var(--bg-1); overflow: hidden;
-    transition: border-color 0.25s ease, transform 0.25s ease, background 0.25s ease;
-  }
-  .card::before {
-    content: ""; position: absolute; inset: 0; opacity: 0;
-    background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), var(--tint, rgba(34,211,238,0.12)), transparent 60%);
-    transition: opacity 0.3s ease; pointer-events: none;
-  }
-  .card:hover { border-color: var(--line-2); transform: translateY(-3px); background: var(--bg-2); }
-  .card:hover::before { opacity: 1; }
-  .card > * { position: relative; z-index: 1; }
-  .card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
-  .card-icon {
-    width: 42px; height: 42px; border-radius: 11px;
-    display: inline-flex; align-items: center; justify-content: center;
-    border: 1px solid var(--line-2); color: var(--ic, var(--accent));
-    background: rgba(255,255,255,0.02);
-  }
-  .card-icon svg { width: 21px; height: 21px; }
-  .status {
-    font-family: var(--mono); font-size: 11px; font-weight: 500;
-    letter-spacing: 0.06em; text-transform: uppercase;
-    padding: 5px 10px; border-radius: 7px;
-    border: 1px solid var(--line); background: rgba(255,255,255,0.02); color: var(--muted);
-    display: inline-flex; align-items: center; gap: 7px;
-  }
-  .status .d { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-  .status.live { color: #4ade80; border-color: rgba(74, 222, 128, 0.3); }
-  .status.pending { color: var(--faint); }
-  .card h3 { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 6px; }
-  .card .api { font-family: var(--mono); font-size: 12px; color: var(--faint); margin-bottom: 16px; }
-  .card p.desc { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 22px; }
-  .scopes { list-style: none; display: flex; flex-wrap: wrap; gap: 7px; margin-top: auto; padding-top: 18px; border-top: 1px solid var(--line); }
-  .scopes li {
-    font-family: var(--mono); font-size: 11px; letter-spacing: 0.02em;
-    padding: 4px 9px; border-radius: 7px;
-    border: 1px solid var(--line); background: rgba(255,255,255,0.02); color: var(--muted);
-  }
-
-  /* ---- Principles ---- */
-  .principles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
-  .principle {
-    padding: 26px 24px; border: 1px solid var(--line);
-    border-radius: var(--r); background: var(--bg-1);
-    transition: border-color 0.25s ease, background 0.25s ease;
-  }
-  .principle:hover { border-color: var(--line-2); background: var(--bg-2); }
-  .principle .pic { color: var(--accent); margin-bottom: 16px; display: block; }
-  .principle .pic svg { width: 20px; height: 20px; }
-  .principle h3 { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 8px; }
-  .principle p { font-size: 14px; color: var(--muted); line-height: 1.6; }
-
-  /* ---- CTA ---- */
-  .cta-band {
-    position: relative; overflow: hidden; text-align: center;
-    border: 1px solid var(--line); border-radius: 20px;
-    background: var(--bg-1); padding: 64px 32px;
-  }
-  .cta-band::before {
-    content: ""; position: absolute; inset: 0;
-    background: radial-gradient(60% 120% at 50% 0%, rgba(34,211,238,0.12), transparent 70%);
-    pointer-events: none;
-  }
-  .cta-band > * { position: relative; }
-  .cta-band h2 { font-size: clamp(26px, 3.4vw, 38px); font-weight: 700; letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 14px; }
-  .cta-band p { color: var(--muted); max-width: 520px; margin: 0 auto 30px; font-size: 16px; }
-
-  /* ---- Footer ---- */
-  footer { border-top: 1px solid var(--line); margin-top: 40px; padding: 56px 0 36px; }
-  .foot-grid { display: grid; grid-template-columns: 1.6fr 1fr 1fr; gap: 44px; }
-  .foot-brand .brand { margin-bottom: 14px; }
-  .foot-brand p { font-size: 14px; color: var(--faint); max-width: 340px; line-height: 1.6; }
-  .foot-col h4 { font-family: var(--mono); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--faint); margin-bottom: 16px; }
-  .foot-col ul { list-style: none; display: flex; flex-direction: column; gap: 11px; }
-  .foot-col a { font-size: 14px; color: var(--muted); transition: color 0.18s; }
-  .foot-col a:hover { color: var(--text); }
-  .foot-bottom {
-    margin-top: 44px; padding-top: 24px; border-top: 1px solid var(--line);
-    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
-    font-family: var(--mono); font-size: 12px; color: var(--faint);
-  }
-
-  /* ---- Reveal ---- */
-  /* Hidden only once JS has confirmed it can bring them back. */
-  .js .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.7s cubic-bezier(.2,.7,.2,1), transform 0.7s cubic-bezier(.2,.7,.2,1); }
-  .js .reveal.in { opacity: 1; transform: none; }
-  .d1 { transition-delay: 0.06s; } .d2 { transition-delay: 0.12s; } .d3 { transition-delay: 0.18s; } .d4 { transition-delay: 0.24s; }
-  @media (prefers-reduced-motion: reduce) {
-    .js .reveal { opacity: 1; transform: none; transition: none; }
-    .js .fade-up { opacity: 1; transform: none; animation: none; }
-    .bg-glow { animation: none; }
-    .progress { display: none; }
-  }
-
-  /* ---- Responsive ---- */
-  @media (max-width: 980px) {
-    .steps { grid-template-columns: repeat(2, 1fr); }
-    .principles { grid-template-columns: repeat(2, 1fr); }
-  }
-  @media (max-width: 900px) {
-    .nav-links { display: none; }
-    .grid-3 { grid-template-columns: 1fr; }
-    .stats { grid-template-columns: repeat(2, 1fr); }
-    .stat:nth-child(2) { border-right: none; }
-    .stat:nth-child(1), .stat:nth-child(2) { border-bottom: 1px solid var(--line); }
-    .foot-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
-    .foot-brand { grid-column: 1 / -1; }
-  }
-  @media (max-width: 620px) {
-    .hero { padding: 64px 0 48px; }
-    .sec { padding: 72px 0; }
-    .steps, .principles { grid-template-columns: 1fr; }
-    .stats { grid-template-columns: 1fr; }
-    .stat { border-right: none; border-bottom: 1px solid var(--line); }
-    .stat:last-child { border-bottom: none; }
-    .foot-grid { grid-template-columns: 1fr; }
-  }
-</style>
 </head>
 <body>
 
@@ -363,12 +29,13 @@
 <header id="hdr">
   <div class="container nav">
     <a class="brand" href="/">
+      <img class="mark" src="/assets/reku-mark.png" alt="" width="26" height="26">
       Reku Media <span class="sep">/</span> <span class="tool">Clipping Publisher</span>
     </a>
     <nav class="nav-links">
-      <a href="#how">How it works</a>
-      <a href="#integrations">Integrations</a>
-      <a href="#behaviour">Behaviour</a>
+      <a href="/how-it-works">How it works</a>
+      <a href="/integrations">Integrations</a>
+      <a href="/behaviour">Behaviour</a>
     </nav>
     <a class="btn btn-ghost" href="mailto:rekumedia.online@gmail.com">Contact</a>
   </div>
@@ -393,8 +60,8 @@
         Reku Media's own connected accounts through the platforms' official APIs.
       </p>
       <div class="hero-actions fade-up fu3">
-        <a class="btn btn-primary btn-lg" href="#how">How it works <span class="arr">&rarr;</span></a>
-        <a class="btn btn-ghost btn-lg" href="#integrations">Platform integrations</a>
+        <a class="btn btn-primary btn-lg" href="/how-it-works">How it works <span class="arr">&rarr;</span></a>
+        <a class="btn btn-ghost btn-lg" href="/integrations">Platform integrations</a>
       </div>
     </div>
 
@@ -418,129 +85,14 @@
     </div>
   </section>
 
-  <section id="how" class="sec">
+  <section class="sec">
     <div class="sec-head reveal">
-      <span class="eyebrow">Pipeline</span>
-      <h2>How it works</h2>
-      <p>Every clip travels the same path. Nothing reaches a platform without a person approving it first.</p>
-    </div>
-    <div class="steps">
-      <div class="step reveal">
-        <div class="step-n">01</div>
-        <h3>Ingest</h3>
-        <p>A long-form source video is added to the local library.</p>
-      </div>
-      <div class="step reveal d1">
-        <div class="step-n">02</div>
-        <h3>Transcribe</h3>
-        <p>Speech is transcribed locally to give the selection step something to read.</p>
-      </div>
-      <div class="step reveal d2">
-        <div class="step-n">03</div>
-        <h3>Select</h3>
-        <p>Self-contained moments are proposed, each with a start, an end and a reason.</p>
-      </div>
-      <div class="step reveal d3">
-        <div class="step-n">04</div>
-        <h3>Render</h3>
-        <p>The clip is cut to vertical format with captions and levelled audio.</p>
-      </div>
-      <div class="step reveal">
-        <div class="step-n">05</div>
-        <h3>Check</h3>
-        <p>Automatic checks catch clipped audio, cut-off sentences and framing faults.</p>
-      </div>
-      <div class="step gate reveal d1">
-        <div class="step-n">06</div>
-        <h3>Approve</h3>
-        <p>A person reviews every clip and either approves it or sends it back with a reason.</p>
-      </div>
-      <div class="step reveal d2">
-        <div class="step-n">07</div>
-        <h3>Publish</h3>
-        <p>Approved clips are uploaded to the chosen account at the scheduled time.</p>
-      </div>
-    </div>
-  </section>
-
-  <section id="integrations" class="sec">
-    <div class="sec-head reveal">
-      <span class="eyebrow">Integrations</span>
-      <h2>Platform integrations</h2>
+      <span class="eyebrow">Overview</span>
+      <h2>What the tool is</h2>
       <p>
-        Each platform is connected through its official API. Authorization is granted by the
-        account owner via the platform's own consent screen; access can be revoked there at any time.
+        Three things describe it completely: it runs on one operator's machine, it publishes only
+        to accounts Reku Media owns, and no clip reaches a platform without a person approving it.
       </p>
-    </div>
-    <div class="grid-3">
-
-      <article class="card reveal" style="--tint: rgba(34,211,238,0.12); --ic: var(--tiktok);">
-        <div class="card-top">
-          <span class="card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V3c.6 2.6 2.6 4.5 5 4.7"/></svg>
-          </span>
-          <span class="status pending"><span class="d"></span>Pending review</span>
-        </div>
-        <h3>TikTok</h3>
-        <div class="api">Login Kit · Content Posting API</div>
-        <p class="desc">
-          The operator signs in to their own TikTok account through Login Kit. Approved clips are
-          then sent to that account with Direct Post, one clip per request, at the time chosen
-          during review. No third-party accounts are involved.
-        </p>
-        <ul class="scopes">
-          <li>user.info.basic</li>
-          <li>video.upload</li>
-          <li>video.publish</li>
-        </ul>
-      </article>
-
-      <article class="card reveal d1" style="--tint: rgba(232,121,166,0.12); --ic: var(--instagram);">
-        <div class="card-top">
-          <span class="card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1"/></svg>
-          </span>
-          <span class="status live"><span class="d"></span>Live</span>
-        </div>
-        <h3>Instagram</h3>
-        <div class="api">Instagram API with Instagram Login</div>
-        <p class="desc">
-          Approved clips are published as Reels to Reku Media's own professional accounts. The tool
-          creates a media container, waits for processing to finish, then publishes it.
-        </p>
-        <ul class="scopes">
-          <li>instagram_business_basic</li>
-          <li>instagram_business_content_publish</li>
-          <li>instagram_business_manage_comments</li>
-        </ul>
-      </article>
-
-      <article class="card reveal d2" style="--tint: rgba(242,109,109,0.12); --ic: var(--youtube);">
-        <div class="card-top">
-          <span class="card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="4"/><path d="M10.5 9.2v5.6l4.6-2.8z"/></svg>
-          </span>
-          <span class="status live"><span class="d"></span>Live</span>
-        </div>
-        <h3>YouTube</h3>
-        <div class="api">YouTube Data API v3</div>
-        <p class="desc">
-          Approved clips are uploaded as Shorts to Reku Media's own channels using a resumable
-          upload, with title and description set from the reviewed clip.
-        </p>
-        <ul class="scopes">
-          <li>youtube.upload</li>
-        </ul>
-      </article>
-
-    </div>
-  </section>
-
-  <section id="behaviour" class="sec">
-    <div class="sec-head reveal">
-      <span class="eyebrow">Design constraints</span>
-      <h2>How the tool behaves</h2>
-      <p>Constraints the tool is built around, not features bolted on afterwards.</p>
     </div>
     <div class="principles">
 
@@ -562,24 +114,21 @@
         <p>Video, transcripts and the review database stay on the operator's own machine. Nothing is uploaded except the finished clip that goes to the chosen platform.</p>
       </div>
 
-      <div class="principle reveal">
-        <span class="pic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="10" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg></span>
-        <h3>Credentials stay in the system keychain</h3>
-        <p>Access tokens are held in the operating system's keychain, never in the project database or in source control, and are used only to publish to the account that issued them.</p>
-      </div>
+    </div>
 
-      <div class="principle reveal d1">
-        <span class="pic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3.2-6.9"/><path d="M21 4v5h-5"/></svg></span>
-        <h3>One upload per approved clip</h3>
-        <p>Publish jobs carry an idempotency key, so an interrupted upload resumes instead of producing a second post.</p>
-      </div>
-
-      <div class="principle reveal d2">
-        <span class="pic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V6a2 2 0 0 1 2-2h13v16H6.5A2.5 2.5 0 0 0 4 22.5z"/><path d="M9 8h6"/></svg></span>
-        <h3>Licensed source material</h3>
-        <p>Source video comes from material Reku Media is licensed to clip, under the terms set by whoever supplied it.</p>
-      </div>
-
+    <div class="pager">
+      <a href="/how-it-works">
+        <div class="k">Pipeline</div>
+        <div class="t">The seven stages, one by one &rarr;</div>
+      </a>
+      <a href="/integrations">
+        <div class="k">Integrations</div>
+        <div class="t">TikTok, Instagram, YouTube &rarr;</div>
+      </a>
+      <a href="/behaviour">
+        <div class="k">Design constraints</div>
+        <div class="t">How the tool behaves &rarr;</div>
+      </a>
     </div>
   </section>
 
@@ -604,7 +153,8 @@
     <div class="foot-grid">
       <div class="foot-brand">
         <a class="brand" href="/">
-              Reku Media <span class="sep">/</span> <span class="tool">Clipping Publisher</span>
+          <img class="mark" src="/assets/reku-mark.png" alt="" width="30" height="30">
+          Reku Media <span class="sep">/</span> <span class="tool">Clipping Publisher</span>
         </a>
         <p>
           In-house publishing tool for Reku Media's own social channels. Long-form video in,
@@ -614,16 +164,16 @@
       <div class="foot-col">
         <h4>Product</h4>
         <ul>
-          <li><a href="#how">How it works</a></li>
-          <li><a href="#integrations">Integrations</a></li>
-          <li><a href="#behaviour">Behaviour</a></li>
+          <li><a href="/how-it-works">How it works</a></li>
+          <li><a href="/integrations">Integrations</a></li>
+          <li><a href="/behaviour">Behaviour</a></li>
         </ul>
       </div>
       <div class="foot-col">
         <h4>Legal</h4>
         <ul>
-          <li><a href="https://rekumedia.com/terms">Terms of Service</a></li>
-          <li><a href="https://rekumedia.com/privacy">Privacy Policy</a></li>
+          <li><a href="/terms">Terms of Service</a></li>
+          <li><a href="/privacy">Privacy Policy</a></li>
           <li><a href="mailto:rekumedia.online@gmail.com">Email</a></li>
         </ul>
       </div>
@@ -637,82 +187,7 @@
 
 </div>
 
-<script>
-  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  // sticky header state + scroll progress
-  var hdr = document.getElementById('hdr');
-  var prog = document.getElementById('prog');
-  var onScroll = function () {
-    if (window.scrollY > 8) { hdr.classList.add('scrolled'); }
-    else { hdr.classList.remove('scrolled'); }
-    if (prog) {
-      var max = document.documentElement.scrollHeight - window.innerHeight;
-      prog.style.transform = 'scaleX(' + (max > 0 ? window.scrollY / max : 0) + ')';
-    }
-  };
-  onScroll();
-  window.addEventListener('scroll', onScroll, { passive: true });
-
-  // reveal on enter
-  var items = document.querySelectorAll('.reveal');
-  if ('IntersectionObserver' in window) {
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
-      });
-    }, { rootMargin: '0px 0px -10% 0px', threshold: 0.08 });
-    items.forEach(function (el) { io.observe(el); });
-  } else {
-    items.forEach(function (el) { el.classList.add('in'); });
-  }
-
-  // Count the stat figures up when the strip arrives. The markup already holds
-  // the real numbers, so this only ever runs when it can finish the job: no JS,
-  // reduced motion, or a strip that is already past — all keep the plain values.
-  var strip = document.querySelector('.stats');
-  var figures = [].slice.call(document.querySelectorAll('.stat-num[data-count]'));
-  if (strip && figures.length && !reduced && 'IntersectionObserver' in window &&
-      strip.getBoundingClientRect().top > window.innerHeight) {
-    figures.forEach(function (el) { el.textContent = '0'; });
-    var runCount = function () {
-      figures.forEach(function (el) {
-        var target = parseInt(el.getAttribute('data-count'), 10) || 0;
-        if (target === 0) { el.textContent = '0'; return; }
-        var dur = 900, t0 = performance.now();
-        var tick = function (now) {
-          var k = Math.min(1, (now - t0) / dur);
-          el.textContent = String(Math.round(target * (1 - Math.pow(1 - k, 3))));
-          if (k < 1) { requestAnimationFrame(tick); }
-        };
-        requestAnimationFrame(tick);
-      });
-    };
-    var so = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (e.isIntersecting) { so.disconnect(); runCount(); }
-      });
-    }, { threshold: 0.3 });
-    so.observe(strip);
-  }
-
-  // pointer-tracked card tint
-  document.querySelectorAll('.card').forEach(function (card) {
-    card.addEventListener('pointermove', function (ev) {
-      var r = card.getBoundingClientRect();
-      card.style.setProperty('--mx', (ev.clientX - r.left) + 'px');
-      card.style.setProperty('--my', (ev.clientY - r.top) + 'px');
-    });
-  });
-
-  // Watchdog: if no observer callback has landed, the content must not stay
-  // hidden. Anything still unrevealed after 1.5s is shown outright.
-  setTimeout(function () {
-    if (!document.querySelector('.reveal.in')) {
-      document.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('in'); });
-    }
-  }, 1500);
-</script>
+<script src="/assets/site.js"></script>
 
 </body>
 </html>

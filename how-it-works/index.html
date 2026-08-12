@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How it works — Clipping Publisher — Reku Media</title>
+<meta name="description" content="The seven stages every clip travels through in Clipping Publisher: ingest, transcribe, select, render, check, approve, publish.">
+<link rel="icon" href="/assets/favicon-32.png" sizes="32x32">
+<link rel="icon" href="/assets/favicon-16.png" sizes="16x16">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+<script>document.documentElement.className += ' js';</script>
+</head>
+<body>
+
+<div class="progress" id="prog" aria-hidden="true"></div>
+
+<div class="bg-wrap">
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+  <div class="bg-grain"></div>
+</div>
+
+<div class="shell">
+
+<header id="hdr">
+  <div class="container nav">
+    <a class="brand" href="/">
+      <img class="mark" src="/assets/reku-mark.png" alt="" width="26" height="26">
+      Reku Media <span class="sep">/</span> <span class="tool">Clipping Publisher</span>
+    </a>
+    <nav class="nav-links">
+      <a class="active" href="/how-it-works">How it works</a>
+      <a href="/integrations">Integrations</a>
+      <a href="/behaviour">Behaviour</a>
+    </nav>
+    <a class="btn btn-ghost" href="mailto:rekumedia.online@gmail.com">Contact</a>
+  </div>
+</header>
+
+<main class="container">
+
+  <div class="page-head">
+    <span class="eyebrow">Pipeline</span>
+    <h1>How it works</h1>
+    <p>
+      Every clip travels the same path, in the same order. The stages are separate on purpose:
+      each one can be re-run on its own, and the sixth is a stop where a person decides whether
+      the clip goes any further.
+    </p>
+  </div>
+
+  <div class="prose">
+
+    <h2>01 &middot; Ingest</h2>
+    <p>
+      A long-form source video is added to the local library — a podcast episode, an interview, a
+      talk. The file stays on the operator's machine; the library only records where it came from,
+      how long it is, and what it is allowed to be used for. Nothing is fetched from a platform at
+      this stage.
+    </p>
+
+    <h2>02 &middot; Transcribe</h2>
+    <p>
+      Speech is transcribed locally, with timestamps, so the selection stage has something to read
+      rather than something to watch. The transcript never leaves the machine, and it is kept
+      alongside the source so a re-run doesn't repeat the work.
+    </p>
+
+    <h2>03 &middot; Select</h2>
+    <p>
+      Candidate moments are proposed from the transcript. A candidate is only useful if it stands
+      on its own, so each one carries three things: a start, an end, and a reason it works without
+      the surrounding hour. Candidates that begin mid-sentence or end on a dangling clause are
+      discarded here rather than fixed later.
+    </p>
+
+    <h2>04 &middot; Render</h2>
+    <p>
+      The selected passage is cut to vertical format. This is where the clip actually gets made:
+    </p>
+    <ul>
+      <li>the speaker is framed for a 9:16 canvas,</li>
+      <li>captions are burned in, timed to the transcript,</li>
+      <li>audio is levelled so the clip doesn't arrive quieter or louder than the feed around it,</li>
+      <li>and the finished file is written to the local render directory.</li>
+    </ul>
+
+    <h2>05 &middot; Check</h2>
+    <p>
+      Automatic checks run against the rendered file before a person ever sees it. They catch the
+      faults that are cheap to detect and expensive to miss: clipped audio, a sentence cut off at
+      either end, framing that crops the speaker, a caption that runs past the safe area, a
+      duration outside the range the target platform rewards. A clip that fails is flagged with the
+      specific fault, not a generic error.
+    </p>
+
+    <h2>06 &middot; Approve <span class="eyebrow" style="display:inline; margin-left:6px;">Manual</span></h2>
+    <p>
+      <strong>This is the gate.</strong> Every clip is opened, watched and judged by a person. The
+      reviewer either approves it — at which point a publish job can be created — or sends it back
+      with a written reason, which stays attached to the clip so the same mistake is visible next
+      time. There is no path from stage 05 to stage 07 that skips this step, and no setting that
+      turns it off.
+    </p>
+
+    <h2>07 &middot; Publish</h2>
+    <p>
+      An approved clip is uploaded to one chosen account at the scheduled time, through that
+      platform's official API. One job means one clip on one account: jobs carry an idempotency
+      key, so an upload interrupted halfway resumes instead of producing a second post. What each
+      platform's upload actually looks like is described on the
+      <a href="/integrations" style="color: var(--accent);">integrations page</a>.
+    </p>
+
+    <h2>What happens when something fails</h2>
+    <p>
+      A failed stage stops that clip and nothing else. The source stays in the library, the
+      transcript is kept, and the run can be resumed from the stage that failed rather than from
+      the beginning. A failed publish job is retried a bounded number of times and then left in a
+      failed state for a person to look at — it is never silently re-queued onto a different
+      account.
+    </p>
+
+  </div>
+
+  <div class="pager">
+    <a href="/integrations">
+      <div class="k">Next</div>
+      <div class="t">Platform integrations &rarr;</div>
+    </a>
+    <a href="/behaviour">
+      <div class="k">Also</div>
+      <div class="t">How the tool behaves &rarr;</div>
+    </a>
+  </div>
+
+</main>
+
+<footer>
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="brand" href="/">
+          <img class="mark" src="/assets/reku-mark.png" alt="" width="30" height="30">
+          Reku Media <span class="sep">/</span> <span class="tool">Clipping Publisher</span>
+        </a>
+        <p>
+          In-house publishing tool for Reku Media's own social channels. Long-form video in,
+          reviewed vertical clips out.
+        </p>
+      </div>
+      <div class="foot-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="/how-it-works">How it works</a></li>
+          <li><a href="/integrations">Integrations</a></li>
+          <li><a href="/behaviour">Behaviour</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="/terms">Terms of Service</a></li>
+          <li><a href="/privacy">Privacy Policy</a></li>
+          <li><a href="mailto:rekumedia.online@gmail.com">Email</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Reku Media · reku. inh. Jakob Henkel · Germany</span>
+      <span>rekumedia.com</span>
+    </div>
+  </div>
+</footer>
+
+</div>
+
+<script src="/assets/site.js"></script>
+
+</body>
+</html>

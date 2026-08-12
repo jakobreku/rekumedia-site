@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Platform integrations — Clipping Publisher — Reku Media</title>
+<meta name="description" content="How Clipping Publisher connects to TikTok, Instagram and YouTube: which API each uses, which scopes are requested, what each scope is used for, and how authorization is granted and revoked.">
+<link rel="icon" href="/assets/favicon-32.png" sizes="32x32">
+<link rel="icon" href="/assets/favicon-16.png" sizes="16x16">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+<script>document.documentElement.className += ' js';</script>
+</head>
+<body>
+
+<div class="progress" id="prog" aria-hidden="true"></div>
+
+<div class="bg-wrap">
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+  <div class="bg-grain"></div>
+</div>
+
+<div class="shell">
+
+<header id="hdr">
+  <div class="container nav">
+    <a class="brand" href="/">
+      <img class="mark" src="/assets/reku-mark.png" alt="" width="26" height="26">
+      Reku Media <span class="sep">/</span> <span class="tool">Clipping Publisher</span>
+    </a>
+    <nav class="nav-links">
+      <a href="/how-it-works">How it works</a>
+      <a class="active" href="/integrations">Integrations</a>
+      <a href="/behaviour">Behaviour</a>
+    </nav>
+    <a class="btn btn-ghost" href="mailto:rekumedia.online@gmail.com">Contact</a>
+  </div>
+</header>
+
+<main class="container">
+
+  <div class="page-head">
+    <span class="eyebrow">Integrations</span>
+    <h1>Platform integrations</h1>
+    <p>
+      Each platform is connected through its official API. Authorization is granted by the account
+      owner on the platform's own consent screen, and can be revoked there at any time — revoking
+      it stops the tool from posting to that account, immediately and permanently.
+    </p>
+  </div>
+
+  <div class="prose">
+
+    <h2>TikTok</h2>
+    <p>
+      <strong>Login Kit</strong> for authorization, <strong>Content Posting API</strong> with
+      Direct Post for publishing.
+    </p>
+    <p>
+      The operator signs in to their own TikTok account through Login Kit on TikTok's consent
+      screen and is returned to
+      <code>https://rekumedia.com/tiktok/callback/</code>, which hands the authorization code back
+      to the tool. An approved clip is then sent to that account with Direct Post: the tool
+      initialises a post, transfers the rendered file, and polls until TikTok reports the post
+      complete. One request carries one clip. No third-party accounts are involved at any point.
+    </p>
+
+    <div class="tablewrap">
+      <table class="spec">
+        <thead>
+          <tr><th>Scope</th><th>Used for</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono">user.info.basic</td>
+            <td>Reading the open ID and display name of the account that just authorized, so the tool can label the connection and post to the right account.</td>
+          </tr>
+          <tr>
+            <td class="mono">video.publish</td>
+            <td>Direct Post — publishing an approved clip to the authorizing account's own profile. This is the scope the tool actually uses to post.</td>
+          </tr>
+          <tr>
+            <td class="mono">video.upload</td>
+            <td>Included automatically with the Content Posting API product and not used by the tool. Clips are posted directly rather than left in the account's drafts.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Instagram</h2>
+    <p><strong>Instagram API with Instagram Login.</strong></p>
+    <p>
+      Approved clips are published as Reels to Reku Media's own professional accounts. The tool
+      creates a media container, waits for Instagram to finish processing it, and then publishes
+      the container. Comments permission is used only to read and moderate comments on Reku
+      Media's own posts.
+    </p>
+
+    <div class="tablewrap">
+      <table class="spec">
+        <thead>
+          <tr><th>Scope</th><th>Used for</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono">instagram_business_basic</td>
+            <td>Identifying the connected professional account.</td>
+          </tr>
+          <tr>
+            <td class="mono">instagram_business_content_publish</td>
+            <td>Creating the media container and publishing the approved clip as a Reel.</td>
+          </tr>
+          <tr>
+            <td class="mono">instagram_business_manage_comments</td>
+            <td>Reading and moderating comments on Reku Media's own posts.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>YouTube</h2>
+    <p><strong>YouTube Data API v3.</strong></p>
+    <p>
+      Approved clips are uploaded as Shorts to Reku Media's own channels using a resumable upload,
+      with the title and description taken from the reviewed clip. A single scope covers this, and
+      it grants nothing beyond uploading.
+    </p>
+
+    <div class="tablewrap">
+      <table class="spec">
+        <thead>
+          <tr><th>Scope</th><th>Used for</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono">youtube.upload</td>
+            <td>Uploading an approved clip to the authorizing channel.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>What the tool never does</h2>
+    <ul>
+      <li>It does not post to accounts that are not Reku Media's own.</li>
+      <li>It does not read, collect or store other users' personal data from any platform.</li>
+      <li>It does not follow, like, comment or message on any platform.</li>
+      <li>It does not offer publishing to third parties; there is no sign-up and no customer account.</li>
+    </ul>
+
+    <h2>Credentials and revocation</h2>
+    <p>
+      Access and refresh tokens are stored in the operating system's keychain on the operator's
+      machine — never in the project database, never in source control — and are used only to
+      publish to the account that issued them. Authorization can be withdrawn at any time from the
+      platform's own settings; the tool then loses access to that account with no further action
+      needed on our side. Details are in the
+      <a href="/privacy" style="color: var(--accent);">privacy policy</a>.
+    </p>
+
+  </div>
+
+  <div class="pager">
+    <a href="/behaviour">
+      <div class="k">Next</div>
+      <div class="t">How the tool behaves &rarr;</div>
+    </a>
+    <a href="/how-it-works">
+      <div class="k">Back</div>
+      <div class="t">The seven pipeline stages &rarr;</div>
+    </a>
+  </div>
+
+</main>
+
+<footer>
+  <div class="container">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="brand" href="/">
+          <img class="mark" src="/assets/reku-mark.png" alt="" width="30" height="30">
+          Reku Media <span class="sep">/</span> <span class="tool">Clipping Publisher</span>
+        </a>
+        <p>
+          In-house publishing tool for Reku Media's own social channels. Long-form video in,
+          reviewed vertical clips out.
+        </p>
+      </div>
+      <div class="foot-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="/how-it-works">How it works</a></li>
+          <li><a href="/integrations">Integrations</a></li>
+          <li><a href="/behaviour">Behaviour</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="/terms">Terms of Service</a></li>
+          <li><a href="/privacy">Privacy Policy</a></li>
+          <li><a href="mailto:rekumedia.online@gmail.com">Email</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Reku Media · reku. inh. Jakob Henkel · Germany</span>
+      <span>rekumedia.com</span>
+    </div>
+  </div>
+</footer>
+
+</div>
+
+<script src="/assets/site.js"></script>
+
+</body>
+</html>

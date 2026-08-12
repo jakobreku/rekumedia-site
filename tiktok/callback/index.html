@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TikTok Authorization — Clipping Publisher — Reku Media</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="/assets/favicon-32.png" sizes="32x32">
+<link rel="icon" href="/assets/favicon-16.png" sizes="16x16">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/site.css">
+</head>
+<body>
+
+<div class="bg-wrap">
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+  <div class="bg-grain"></div>
+</div>
+
+<div class="shell">
+
+<header id="hdr">
+  <div class="container nav">
+    <a class="brand" href="/">
+      <img class="mark" src="/assets/reku-mark.png" alt="" width="26" height="26">
+      Reku Media <span class="sep">/</span> <span class="tool">Clipping Publisher</span>
+    </a>
+    <a class="btn btn-ghost" href="/integrations">Integrations</a>
+  </div>
+</header>
+
+<main class="container">
+  <div class="auth">
+    <div class="panel">
+      <span class="eyebrow">TikTok &middot; Login Kit</span>
+      <h1 style="margin-top:14px;">Authorization</h1>
+      <p class="sub" id="status">Reading the authorization result…</p>
+
+      <code class="code" id="code" hidden></code>
+      <button class="btn btn-primary" id="copy" hidden>Copy code</button>
+
+      <p class="sub" id="hint" style="margin-top:24px;" hidden>
+        Paste this code into the setup script running on the operator's machine. It is valid for a
+        short time and grants access only to the account that just authorized.
+      </p>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    <div class="foot-bottom" style="margin-top:0; border-top:none;">
+      <span>© 2026 Reku Media · reku. inh. Jakob Henkel · Germany</span>
+      <span><a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></span>
+    </div>
+  </div>
+</footer>
+
+</div>
+
+<script>
+  var params = new URLSearchParams(window.location.search);
+  var code = params.get("code");
+  var error = params.get("error");
+  var errorDesc = params.get("error_description");
+  var statusEl = document.getElementById("status");
+  var codeEl = document.getElementById("code");
+  var copyBtn = document.getElementById("copy");
+  var hintEl = document.getElementById("hint");
+
+  if (code) {
+    statusEl.textContent = "Authorized. Copy this code and paste it into the setup script:";
+    statusEl.className = "sub ok";
+    codeEl.textContent = code;
+    codeEl.hidden = false;
+    copyBtn.hidden = false;
+    hintEl.hidden = false;
+    copyBtn.addEventListener("click", function () {
+      navigator.clipboard.writeText(code).then(function () {
+        copyBtn.textContent = "Copied";
+      }, function () {
+        copyBtn.textContent = "Press ⌘C to copy";
+      });
+    });
+  } else if (error) {
+    statusEl.textContent = "Authorization failed: " + (errorDesc || error);
+    statusEl.className = "sub bad";
+  } else {
+    statusEl.textContent = "No authorization code found in this URL. Start the sign-in from the setup script.";
+    statusEl.className = "sub bad";
+  }
+</script>
+
+</body>
+</html>
