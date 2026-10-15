@@ -126,8 +126,9 @@
     <p><strong>YouTube Data API v3.</strong></p>
     <p>
       Approved clips are uploaded as Shorts to Reku Media's own channels using a resumable upload,
-      with the title and description taken from the reviewed clip. A single scope covers this, and
-      it grants nothing beyond uploading.
+      with the title and description taken from the reviewed clip. The tool also reads view
+      statistics and audience retention of Reku Media's own videos and sets the name, description
+      and banner of a new channel once.
     </p>
 
     <div class="tablewrap">
@@ -139,6 +140,14 @@
           <tr>
             <td class="mono">youtube.upload</td>
             <td>Uploading an approved clip to the authorizing channel.</td>
+          </tr>
+          <tr>
+            <td class="mono">youtube.readonly</td>
+            <td>Confirming the channel before an upload; reading view counts and retention of Reku Media's own videos.</td>
+          </tr>
+          <tr>
+            <td class="mono">youtube</td>
+            <td>Setting channel branding (channels.update), which the narrower scopes do not cover.</td>
           </tr>
         </tbody>
       </table>
