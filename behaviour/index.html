@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>How the tool behaves — Reku Media</title>
-<meta name="description" content="The constraints the Reku Media app is built around: own accounts only, a person approves every clip, local processing, keychain credentials, one upload per clip, licensed source material.">
+<meta name="description" content="The constraints the Reku Media app is built around: own accounts only, every clip is checked before upload, local processing, keychain credentials, one upload per clip, licensed source material.">
 <link rel="icon" href="/assets/favicon-32.png" sizes="32x32">
 <link rel="icon" href="/assets/favicon-16.png" sizes="16x16">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
@@ -63,11 +63,12 @@
       screen.
     </p>
 
-    <h2>A person approves every clip</h2>
+    <h2>Every clip is checked before upload</h2>
     <p>
-      Clips are never published as a side effect of the editing step. A publish job cannot be
-      created for a clip that has not been approved by hand, and there is no configuration that
-      relaxes this. When a reviewer rejects a clip, the reason is stored with it, so the record of
+      Clips are never published as a side effect of the editing step. A publish job cannot run
+      for a clip that has not passed the automated pre-publication checks, and the same rules are
+      checked again immediately before each upload. When a clip is rejected — by a check or by
+      the operator — the reason is stored with it, so the record of
       why something was thrown out survives longer than the memory of it.
     </p>
 
@@ -156,7 +157,7 @@
     </div>
     <div class="foot-bottom">
       <span>© 2026 Reku Media · reku. inh. Jakob Henkel · Germany</span>
-      <span>rekumedia.com</span>
+      <span>rekumedia.de</span>
     </div>
   </div>
 </footer>

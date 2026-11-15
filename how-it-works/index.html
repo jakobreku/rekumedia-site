@@ -48,7 +48,7 @@
     <h1>How it works</h1>
     <p>
       Every clip travels the same path, in the same order. The stages are separate on purpose:
-      each one can be re-run on its own, and the sixth is a stop where a person decides whether
+      each one can be re-run on its own, and the sixth is a gate that decides whether
       the clip goes any further.
     </p>
   </div>
@@ -91,20 +91,21 @@
 
     <h2>05 &middot; Check</h2>
     <p>
-      Automatic checks run against the rendered file before a person ever sees it. They catch the
+      Automatic checks run against the rendered file before it can move on. They catch the
       faults that are cheap to detect and expensive to miss: clipped audio, a sentence cut off at
       either end, framing that crops the speaker, a caption that runs past the safe area, a
       duration outside the range the target platform rewards. A clip that fails is flagged with the
       specific fault, not a generic error.
     </p>
 
-    <h2>06 &middot; Approve <span class="eyebrow" style="display:inline; margin-left:6px;">Manual</span></h2>
+    <h2>06 &middot; Approve <span class="eyebrow" style="display:inline; margin-left:6px;">Automated gate</span></h2>
     <p>
-      <strong>This is the gate.</strong> Every clip is opened, watched and judged by a person. The
-      reviewer either approves it — at which point a publish job can be created — or sends it back
-      with a written reason, which stays attached to the clip so the same mistake is visible next
-      time. There is no path from stage 05 to stage 07 that skips this step, and no setting that
-      turns it off.
+      <strong>This is the gate.</strong> A clip is approved for publishing only when it has passed
+      the checks from stage 05 and the rules of the campaign it belongs to. A clip that fails is
+      held back with a written reason, which stays attached to the clip so the same mistake is
+      visible next time. The operator can open any clip in the review interface and reject it;
+      rejecting a clip cancels its pending uploads. The same rules are checked again immediately
+      before each upload, so there is no path from stage 05 to stage 07 that skips this gate.
     </p>
 
     <h2>07 &middot; Publish</h2>
@@ -172,7 +173,7 @@
     </div>
     <div class="foot-bottom">
       <span>© 2026 Reku Media · reku. inh. Jakob Henkel · Germany</span>
-      <span>rekumedia.com</span>
+      <span>rekumedia.de</span>
     </div>
   </div>
 </footer>

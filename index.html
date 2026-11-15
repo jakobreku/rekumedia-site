@@ -56,7 +56,7 @@
       <p class="lead fade-up fu2">
         The Reku Media app is the internal tool Reku Media uses to run its own social media
         channels. It takes long-form source video, selects the moments worth keeping, renders
-        them as vertical clips, and — after a person approves each one — publishes them to
+        them as vertical clips, and — once each one has passed the tool's pre-publication checks — publishes them to
         Reku Media's own connected accounts through the platforms' official APIs.
       </p>
       <div class="hero-actions fade-up fu3">
@@ -76,7 +76,7 @@
       </div>
       <div class="stat">
         <div class="stat-num" data-count="1">1</div>
-        <div class="stat-label">Manual approval gate</div>
+        <div class="stat-label">Pre-publication gate</div>
       </div>
       <div class="stat">
         <div class="stat-num" data-count="0">0</div>
@@ -91,7 +91,7 @@
       <h2>What the tool is</h2>
       <p>
         Three things describe it completely: it runs on one operator's machine, it publishes only
-        to accounts Reku Media owns, and no clip reaches a platform without a person approving it.
+        to accounts Reku Media owns, and no clip reaches a platform without passing the pre-publication checks.
       </p>
     </div>
     <div class="principles">
@@ -104,8 +104,8 @@
 
       <div class="principle reveal d1">
         <span class="pic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
-        <h3>A person approves every clip</h3>
-        <p>Clips are never published automatically off the back of the editing step. Each one is reviewed and approved by hand before a publish job can even be created.</p>
+        <h3>Every clip is checked before upload</h3>
+        <p>Clips are never published automatically off the back of the editing step. Each one has to pass automated rule and quality checks first, and a clip that fails is not published. The operator can review and reject any clip; rejecting it cancels its pending uploads.</p>
       </div>
 
       <div class="principle reveal d2">
@@ -180,7 +180,7 @@
     </div>
     <div class="foot-bottom">
       <span>© 2026 Reku Media · reku. inh. Jakob Henkel · Germany</span>
-      <span>rekumedia.com</span>
+      <span>rekumedia.de</span>
     </div>
   </div>
 </footer>
