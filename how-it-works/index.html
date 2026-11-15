@@ -58,7 +58,7 @@
     <h2>01 &middot; Ingest</h2>
     <p>
       A long-form source video is added to the local library — a podcast episode, an interview, a
-      talk. The file stays on the operator's machine; the library only records where it came from,
+      talk. The file stays on the operator's own hardware; the library only records where it came from,
       how long it is, and what it is allowed to be used for. Nothing is fetched from a platform at
       this stage.
     </p>
@@ -66,13 +66,14 @@
     <h2>02 &middot; Transcribe</h2>
     <p>
       Speech is transcribed locally, with timestamps, so the selection stage has something to read
-      rather than something to watch. The transcript never leaves the machine, and it is kept
-      alongside the source so a re-run doesn't repeat the work.
+      rather than something to watch. The transcript is kept alongside the source so a re-run
+      doesn't repeat the work.
     </p>
 
     <h2>03 &middot; Select</h2>
     <p>
-      Candidate moments are proposed from the transcript. A candidate is only useful if it stands
+      Candidate moments are proposed from the transcript with the help of an AI model, which
+      reads transcript excerpts. A candidate is only useful if it stands
       on its own, so each one carries three things: a start, an end, and a reason it works without
       the surrounding hour. Candidates that begin mid-sentence or end on a dangling clause are
       discarded here rather than fixed later.
